@@ -1,0 +1,33 @@
+apply plugin: 'com.android.library'
+apply from: "publish.gradle"
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION as int
+    defaultConfig {
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
+        versionCode APPLICATION_VERSION_CODE as int
+        versionName "${APPLICATION_VERSION_NAME}"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            consumerProguardFiles 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation "junit:junit:${JUNIT_VERSION}"
+    androidTestImplementation "androidx.test:runner:${RUNNER_VERSION}"
+    androidTestImplementation "androidx.test.espresso:espresso-core:${ESPRESSO_VERSION}"
+}

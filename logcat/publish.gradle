@@ -1,0 +1,71 @@
+apply plugin: 'maven-publish'
+
+task sourceJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            version PUBLICATIONS_VERSION
+            groupId PUBLICATIONS_GROUPID
+            artifactId PUBLICATIONS_ARTIFACTID
+
+            // Tell maven to prepare the generated "*.jar" file for publishing
+            artifact(sourceJar)
+            // Tell maven to prepare the generated "*.aar" file for publishing
+            artifact("$buildDir/outputs/aar/" + PUBLICATIONS_ARCHIVEFILE)
+
+            // Also record other remote dependencies on which the dependent library depends
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                configurations.api.allDependencies.each {
+                    if (it.group != null && (it.name != null || "unspecified".equals(it.name)) && it.version != null) {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name(REPOSITORIES_RELEASE_NAME)
+            url(REPOSITORIES_RELEASE_URL)
+            credentials {
+                username(REPOSITORIES_USERNAME)
+                password(REPOSITORIES_PASSWORD)
+            }
+        }
+
+        maven {
+            name(REPOSITORIES_SNAPSHOT_NAME)
+            url(REPOSITORIES_SNAPSHOT_URL)
+            credentials {
+                username(REPOSITORIES_USERNAME)
+                password(REPOSITORIES_PASSWORD)
+            }
+        }
+    }
+}
+
+tasks.withType(PublishToMavenRepository) {
+    onlyIf {(
+            (publication == publishing.publications.aar
+                    && repository == publishing.repositories.release
+                    && !PUBLICATIONS_VERSION.endsWith("SNAPSHOT")) ||
+            (publication == publishing.publications.aar
+                    && repository == publishing.repositories.snapshot
+                    && PUBLICATIONS_VERSION.endsWith("SNAPSHOT"))
+    )}
+}
+
+task publishAuto(group: 'publishing') {
+    dependsOn = [clean, assemble, publish]
+    assemble.mustRunAfter clean
+    publish.mustRunAfter assemble
+}

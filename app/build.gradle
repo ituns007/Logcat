@@ -1,0 +1,38 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION as int
+    defaultConfig {
+        applicationId "${APPLICATION_ID}"
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
+        versionCode APPLICATION_VERSION_CODE as int
+        versionName "${APPLICATION_VERSION_NAME}"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    testImplementation "junit:junit:${JUNIT_VERSION}"
+    androidTestImplementation "androidx.test:runner:${RUNNER_VERSION}"
+    androidTestImplementation "androidx.test.espresso:espresso-core:${ESPRESSO_VERSION}"
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "androidx.appcompat:appcompat:${APPCOMPAT_VERSION}"
+    implementation "androidx.constraintlayout:constraintlayout:${CONSTRAINT_VERSION}"
+
+//    implementation project(":logcat")
+    implementation "org.ituns.android:logcat:${SYSTEM_LOGCAT_VERSION}"
+}

@@ -1,0 +1,3 @@
+rootProject.name='Logcat'
+include ':app'
+include ':logcat'
